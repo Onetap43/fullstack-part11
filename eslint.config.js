@@ -10,12 +10,22 @@ module.exports = [
       'eslint.config.js',
       '.eslintrc.js',
       'node_modules/**',
-      'dist/**'
+      'dist/**',
+      'playwright-report/**',
+      'test-results/**'
     ]
   },
+
   js.configs.recommended,
+
   {
-    files: ['app.js', 'jest.setup.js'],
+    files: [
+      'app.js',
+      'jest.setup.js',
+      'playwright.config.js',
+      'e2e-tests/**/*.js'
+    ],
+
     languageOptions: {
       ecmaVersion: 2018,
       sourceType: 'commonjs',
@@ -23,6 +33,7 @@ module.exports = [
         ...globals.node
       }
     },
+
     rules: {
       indent: ['error', 2],
       'linebreak-style': ['error', 'unix'],
@@ -35,12 +46,18 @@ module.exports = [
       'no-console': 0
     }
   },
+
   {
-    files: ['src/**/*.{js,jsx}', 'test/**/*.{js,jsx}'],
+    files: [
+      'src/**/*.{js,jsx}',
+      'test/**/*.{js,jsx}'
+    ],
+
     plugins: {
       react,
       jest
     },
+
     languageOptions: {
       ecmaVersion: 2018,
       sourceType: 'module',
@@ -55,11 +72,13 @@ module.exports = [
         ...globals.jest
       }
     },
+
     settings: {
       react: {
         version: 'detect'
       }
     },
+
     rules: {
       ...react.configs.recommended.rules,
       indent: ['error', 2],
