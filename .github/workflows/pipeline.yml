@@ -38,12 +38,22 @@ jobs:
       - name: Run end-to-end tests
         run: npm run test:e2e
 
+  deploy:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+
+    steps:
       - name: Trigger deployment
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         run: curl "${{ secrets.RENDER_DEPLOY_HOOK }}"
 
+  notify_success:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    if: ${{ needs.deploy.result == 'success' }}
+
+    steps:
       - name: Discord success notification
-        if: ${{ success() && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
@@ -53,8 +63,13 @@ jobs:
             A new version was deployed successfully.
             Commit: ${{ github.sha }}
 
+  notify_failure:
+    needs: [simple_deployment_pipeline, deploy]
+    runs-on: ubuntu-latest
+    if: ${{ always() && (needs.simple_deployment_pipeline.result == 'failure' || needs.deploy.result == 'failure') }}
+
+    steps:
       - name: Discord failure notification
-        if: ${{ failure() }}
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
@@ -67,9 +82,9 @@ jobs:
             Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   tag_release:
-    needs: [simple_deployment_pipeline]
+    needs: [deploy]
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') && needs.deploy.result == 'success' }}
 
     steps:
       - uses: actions/checkout@v6
