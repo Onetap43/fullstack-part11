@@ -42,6 +42,30 @@ jobs:
         if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         run: curl "${{ secrets.RENDER_DEPLOY_HOOK }}"
 
+      - name: Discord success notification
+        if: ${{ success() && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: Success
+          title: Deployment successful
+          description: |
+            A new version was deployed successfully.
+            Commit: ${{ github.sha }}
+
+      - name: Discord failure notification
+        if: ${{ failure() }}
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: Failure
+          title: Build failed
+          description: |
+            Repository: ${{ github.repository }}
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message }}
+            Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-latest
