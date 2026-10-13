@@ -4,6 +4,8 @@ const app = express()
 
 const PORT = process.env.PORT || 5001
 
+const unusedVariable = 'intentional lint failure'
+
 app.use(express.static('dist'))
 
 app.get('/version', (req, res) => {
