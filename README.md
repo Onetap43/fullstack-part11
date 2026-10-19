@@ -13,3 +13,9 @@ Start by running `npm install` inside the project folder
 `npm run start-prod` to run your production build
 ## Deployed application
 https://fullstack-part11-12gb.onrender.com
+
+## Exercises 21 and 22 - Own application
+
+[Notes App GitHub repository](https://github.com/Onetap43/notes-backend)
+
+[Pull request for review](https://github.com/Onetap43/notes-backend/pull/3)
